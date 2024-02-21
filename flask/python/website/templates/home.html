@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+<!-- Bootstrap JS and jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<style>
+a {
+  text-decoration: none; /* Remove underline */
+  color: #333; /* Set text color */
+  padding: 5px 10px; /* Add padding */
+  border: 1px solid #333; /* Add border */
+  border-radius: 5px; /* Add border radius for rounded corners */
+  margin-right: 10px; /* Add right margin for spacing between links */
+  transition: all 0.3s ease; /* Add smooth transition effect */
+}
+
+/* Hover effect */
+a:hover {
+  background-color: #333; /* Change background color on hover */
+  color: #fff; /* Change text color on hover */
+}
+
+</style>
+<h2 align="center">Your QR Code:</h2>
+<div style="display: flex; justify-content: center; align-items: center;">
+  <img src="{{ url_for('static', filename='qrcodes/' ~ user.qrcode) }}" alt="QR Code">
+</div>
+<h1 align="center">Balance: {{ user.balance.balance }}</h1>
+
+
+
+<!-- User Details Modal -->
+<div class="modal fade" id="userDetailsModal" tabindex="-1" role="dialog" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+             
+              <h5 class="modal-title text-center" id="userDetailsModalLabel">User Details</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="text-center">
+            <img src="{{ url_for('static', filename='avatars/' + current_user.avatar) }}" alt="Avatar" width="160" height="150" style="border-radius: 50%;">
+        </div>
+          <div class="modal-body">
+              <p><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+              <p><strong>Unit Type:</strong> {{ user.unit_type }}</p>
+              <p><strong>Unit Info:</strong> {{ user.unit_info }}</p>
+              <p><strong>Email:</strong> {{ user.email }}</p>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editUserModal" data-dismiss="modal">Edit</button>
+          </div>
+      </div>
+  </div>
+</div>
+<div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="editUserModalLabel">Edit User Details</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            <form action="{{ url_for('auth.update_user') }}" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="user_id" value="{{ user.id }}">
+                <div class="form-group">
+                    <label for="editFirstName">First Name</label>
+                    <input type="text" class="form-control" id="editFirstName" name="editFirstName" value="{{ user.first_name }}">
+                </div>
+                <div class="form-group">
+                    <label for="editLastName">Last Name</label>
+                    <input type="text" class="form-control" id="editLastName" name="editLastName" value="{{ user.last_name }}">
+                </div>
+                <div class="form-group">
+                    <label for="editUnitInfo">Unit Info</label>
+                    <input type="text" class="form-control" id="editUnitInfo" name="editUnitInfo" value="{{ user.unit_info }}">
+                </div>
+                <div class="form-group">
+                    <label for="editEmail">Email</label>
+                    <input type="email" class="form-control" id="editEmail" name="editEmail" value="{{ user.email }}">
+                </div>
+                <div class="form-group">
+                    <label for="editPassword">Password</label>
+                    <input type="password" class="form-control" id="editPassword" name="editPassword">
+                </div>
+                <div class="form-group">
+                    <label for="editAvatar">Profile Picture</label>
+                    <input type="file" class="form-control-file" id="editAvatar" name="editAvatar">
+                </div>
+                <button type="submit" class="btn btn-primary">Update</button>
+            </form>
+        </div>
+          
+      </div>
+  </div>
+</div>
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#transactionsModal">
+  View Transactions
+</button>
+<!-- Modal -->
+<div class="modal fade" id="transactionsModal" tabindex="-1" role="dialog" aria-labelledby="transactionsModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="transactionsModalLabel">Transactions</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Display transactions here -->
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Amount</th>
+              <th>Date</th>
+              <th>Date of Payment</th>
+              <th>Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for transaction in user.transactions %}
+            <tr>
+              <td>{{ transaction.amount }}</td>
+              <td>{{ transaction.date }}</td>
+              <td>{{ transaction.date_of_payment }}</td>
+              <td>{{ transaction.type.name.split('.')[-1] }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<a href="/payment_calendar">Payments  </a>
+
+<a href="{{ url_for('static', filename='qrcodes/' ~ user.qrcode) }}" download="QRCode.png"
+  class="btn btn-success">Download QR Code</a>
+<br>
+<br>
+<a href="/topup">Topup</a>
+
+<a href="/deduct">Pay</a>
+
+{% endblock %}

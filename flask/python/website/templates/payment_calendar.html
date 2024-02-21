@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<head>
+    <title>Payment Calendar</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .table td {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+        }
+        .table td.table-success {
+            background-color: #28a745; /* Darker green */
+            color: white;
+        }
+        .table td.table-danger {
+            background-color: #dc3545; /* Darker red */
+            color: white;
+            cursor: pointer; /* Add cursor pointer for clickable cells */
+        }
+        .table td.future {
+            background-color: #ffffff; /* White for future dates */
+        }
+        .calendar-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .month-name {
+            font-size: 24px;
+        }
+        .calendar-navigation a {
+            text-decoration: none;
+            color: black;
+        }
+        .calendar-navigation a:hover {
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5 mb-4">Payment Calendar</h1>
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <div class="calendar-navigation">
+                    <a href="{{ url_for('views.payment_calendar', year=current_date.year, month=current_date.month-1) }}"><i class="fas fa-chevron-left"></i></a>
+                    <span class="month-name">{{ calendar.month_name[current_date.month] }}</span>
+                    <a href="{{ url_for('views.payment_calendar', year=current_date.year, month=current_date.month+1) }}"><i class="fas fa-chevron-right"></i></a>
+                </div>
+                <table class="table table-bordered text-center">
+                    <thead>
+                        <tr>
+                            <th>Mon</th>
+                            <th>Tue</th>
+                            <th>Wed</th>
+                            <th>Thu</th>
+                            <th>Fri</th>
+                            <th>Sat</th>
+                            <th>Sun</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for week in calendar_data %}
+                        <tr>
+                            {% for day in week %}
+                            <td {% if day.day != 0 %}
+                                {% if day.is_paid %} class="table-success"
+                                {% elif day.is_future %} class="future"
+                                {% else %} class="table-danger"
+                                {% endif %}
+                                onclick="showDeductForm('{{ current_date.year }}', '{{ current_date.month }}', '{{ day.day }}')"
+                            {% endif %}>
+                                {% if day.day != 0 %}{{ day.day }}{% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    function showDeductForm(year, month, day) {
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/deduct_no_redirect';
+
+        var dateInput = document.createElement('input');
+        dateInput.type = 'hidden';
+        dateInput.name = 'payment_date';
+        dateInput.value = year + '-' + month + '-' + day;
+
+        form.appendChild(dateInput);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+</script>
+</html>
+{% endblock %}

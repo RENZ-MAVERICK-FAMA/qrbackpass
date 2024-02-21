@@ -1,0 +1,28 @@
+{% extends "base.html" %} 
+{% block title %}deduct{% endblock %} 
+{% block content %}
+<h2 align="center">Daily payment</h2>
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6">   
+      <h1 align="center">Balance: {{ user.balance.balance }}</h1>
+
+      <form method="POST">
+       
+        <div class="form-group">
+          <label for="amt1">Amount to Deduct:</label>
+          <input type="number" class="form-control" id="amt1" name="amt1" placeholder="{% if user.unit_type == 'Motorela' %}6{% elif user.unit_type == 'Multicab' %}10{% endif %}"" value="{% if user.unit_type == 'Motorela' %}6{% elif user.unit_type == 'Multicab' %}10{% endif %}" readonly>
+        </div>
+        <div class="form-group">
+          <label for="payment_date">Date of Payment:</label>
+          <input type="date" class="form-control" id="payment_date" name="payment_date" required="true">
+        </div>
+        <button type="submit" class="btn btn-primary">PAY</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+{% endblock %}
